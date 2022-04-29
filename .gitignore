@@ -1,0 +1,10 @@
+# VIM
+*.swp
+
+# PY
+__pycache__
+
+# ROS
+build
+install
+log
