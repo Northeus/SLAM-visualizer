@@ -6,6 +6,7 @@ Rviz2 visulizer from input file
 ## Data
  - Example files are stored in `data` folder
  - Folder contains toy data
+ - After updating data you have to rebuild
 
 ### Points
  - `points.csv` contains all landmarks

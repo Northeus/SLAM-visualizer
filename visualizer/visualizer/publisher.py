@@ -8,7 +8,6 @@ from rclpy.node import Node
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import Marker, MarkerArray
 
-
 ###############################################################################
 def get_marker(marker_type, marker_id, scale, color=(1.0, 1.0, 1.0)):
     marker = Marker()
@@ -135,7 +134,7 @@ def get_data_path(filename):
 ###############################################################################
 def main(args=None):
     # Time between position changes
-    time = 2.0
+    time = 0.1
 
     # Load data
     points_path = get_data_path('points.csv')
