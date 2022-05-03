@@ -1,5 +1,6 @@
-# Visualizer
+# SLAM-visualizer
 Rviz2 visulizer from input file
+**TODO RENAME TO SLAM-VISUALIZER**.
 
 -------------------------------------------------------------------------------
 

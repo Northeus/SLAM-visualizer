@@ -8,6 +8,7 @@ from rclpy.node import Node
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import Marker, MarkerArray
 
+
 ###############################################################################
 def get_marker(marker_type, marker_id, scale, color=(1.0, 1.0, 1.0)):
     marker = Marker()
@@ -54,13 +55,13 @@ def get_points(points_data, marker_id):
 
 
 ###############################################################################
-def get_lines(start_position, marker_id):
+def get_lines(marker_id):
     return get_marker(Marker.LINE_STRIP, marker_id, [0.05, 0.0, 0.0])
 
 
 ###############################################################################
 class Publisher(Node):
-    def __init__(self, time, points_data, positions_data, seen_data):
+    def __init__(self, time, points_data, positions_data, seen_data, estimate_data):
         super().__init__('publisher')
 
         self.publisher = self.create_publisher(MarkerArray, 'viz', 10)
@@ -68,9 +69,12 @@ class Publisher(Node):
 
         self.positions_data = positions_data
         self.seen_data      = seen_data
+        self.estimate_data  = estimate_data
 
-        self.lines          = get_lines(positions_data[0], 0)
+        self.lines          = get_lines(0)
         self.points         = get_points(points_data, 1)
+        self.lines2         = get_lines(2)
+        self.lines2.color.r, self.lines2.color.b = 0.0, 0.0
 
         self.current_position_index = 0
         self.seen_index             = 0
@@ -78,7 +82,8 @@ class Publisher(Node):
         self.markers            = MarkerArray()
         self.markers.markers    = [
             self.lines,
-            self.points
+            self.points,
+            self.lines2
         ]
 
     ###########################################################################
@@ -90,12 +95,22 @@ class Publisher(Node):
     def set_current_position(self):
         position = self.positions_data[self.current_position_index]
 
+        # Insert groundtruth
         if not self.lines.points:
             self.lines.points.append(get_point(*position))
         else:
             self.lines.points.append(get_point(*position))
             self.lines.points.append(get_point(*position))
 
+        # Insert estimation
+        if self.current_position_index < len(self.estimate_data):
+            position = self.estimate_data[self.current_position_index]
+
+            if not self.lines2.points:
+                self.lines2.points.append(get_point(*position))
+            else:
+                self.lines2.points.append(get_point(*position))
+                self.lines2.points.append(get_point(*position))
 
     ###########################################################################
     def set_currently_seen(self):
@@ -146,9 +161,12 @@ def main(args=None):
     seen_path = get_data_path('seen.csv')
     seen_data = np.genfromtxt(seen_path, delimiter=' ', dtype=int)
 
+    estimate_path = get_data_path('estimate.csv')
+    estimate_data = np.genfromtxt(estimate_path, delimiter=' ')
+
     # Run
     rclpy.init(args=args)
-    publisher = Publisher(time, points_data, positions_data, seen_data)
+    publisher = Publisher(time, points_data, positions_data, seen_data, estimate_data)
 
     rclpy.spin(publisher)
 

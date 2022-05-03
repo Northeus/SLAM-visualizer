@@ -11,7 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/data',
-            ['../data/points.csv', '../data/positions.csv', '../data/seen.csv'])
+            ['../data/points.csv', '../data/positions.csv', '../data/seen.csv', '../data/estimate.csv'])
     ],
     install_requires=['setuptools'],
     zip_safe=True,
