@@ -1,6 +1,4 @@
-import numpy as np
-import os
-import rclpy
+from visualizer.marker import *
 
 from ament_index_python.packages import get_package_share_directory
 from geometry_msgs.msg import Point
@@ -8,60 +6,20 @@ from rclpy.node import Node
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import Marker, MarkerArray
 
-
-###############################################################################
-def get_marker(marker_type, marker_id, scale, color=(1.0, 1.0, 1.0)):
-    marker = Marker()
-
-    marker.header.frame_id  = 'world'
-    marker.ns               = 'visualization'
-
-    marker.type             = marker_type
-    marker.id               = marker_id
-    marker.action           = marker.ADD
-
-    marker.scale.x, marker.scale.y, marker.scale.z = scale
-    marker.color.r, marker.color.g, marker.color.b = color
-    marker.color.a = 1.0
-
-    marker.points           = []
-    marker.colors           = []
-
-    return marker
-
-
-###############################################################################
-def get_point(x, y, z):
-    return Point(x=x, y=y, z=z)
-
-
-###############################################################################
-def get_color(red, green, blue, alpha=1.0):
-    color = ColorRGBA()
-    color.r, color.g, color.b, color.a = red, green, blue, alpha
-
-    return color
-
-
-###############################################################################
-def get_points(points_data, marker_id):
-    points_marker = get_marker(Marker.POINTS, marker_id, [0.1, 0.1, 0.1])
-
-    for x, y, z in points_data:
-        points_marker.points.append(get_point(x, y, z))
-        points_marker.colors.append(get_color(1.0, 1.0, 1.0))
-
-    return points_marker
-
-
-###############################################################################
-def get_lines(marker_id):
-    return get_marker(Marker.LINE_STRIP, marker_id, [0.05, 0.0, 0.0])
+import numpy as np
+import os
+import rclpy
 
 
 ###############################################################################
 class Publisher(Node):
-    def __init__(self, time, points_data, positions_data, seen_data, estimate_data):
+    def __init__(
+            self,
+            time,
+            points_data,
+            positions_data,
+            seen_data,
+            estimate_data):
         super().__init__('publisher')
 
         self.publisher = self.create_publisher(MarkerArray, 'viz', 10)
@@ -71,24 +29,24 @@ class Publisher(Node):
         self.seen_data      = seen_data
         self.estimate_data  = estimate_data
 
-        self.lines          = get_lines(0)
-        self.points         = get_points(points_data, 1)
-        self.lines2         = get_lines(2)
-        self.lines2.color.r, self.lines2.color.b = 0.0, 0.0
+        self.landmarks_points   = get_points(points_data, 0)
+        self.groundtruth_lines  = get_lines(1)
+        self.estimation_lines   = get_lines(2)
+        self.estimation_lines.color.r, self.estimation_lines.color.b = 0.0, 0.0
 
         self.current_position_index = 0
         self.seen_index             = 0
 
         self.markers            = MarkerArray()
         self.markers.markers    = [
-            self.lines,
-            self.points,
-            self.lines2
+            self.landmarks_points,
+            self.groundtruth_lines,
+            self.estimation_lines
         ]
 
     ###########################################################################
     def clear_seen(self):
-        for color in self.points.colors:
+        for color in self.landmarks_points.colors:
             color.r, color.g, color.b = 1.0, 1.0, 1.0
 
     ###########################################################################
@@ -96,21 +54,21 @@ class Publisher(Node):
         position = self.positions_data[self.current_position_index][:3]
 
         # Insert groundtruth
-        if not self.lines.points:
-            self.lines.points.append(get_point(*position))
+        if not self.groundtruth_lines.points:
+            self.groundtruth_lines.points.append(get_point(*position))
         else:
-            self.lines.points.append(get_point(*position))
-            self.lines.points.append(get_point(*position))
+            self.groundtruth_lines.points.append(get_point(*position))
+            self.groundtruth_lines.points.append(get_point(*position))
 
         # Insert estimation
         if self.current_position_index < len(self.estimate_data):
             position = self.estimate_data[self.current_position_index][:3]
 
-            if not self.lines2.points:
-                self.lines2.points.append(get_point(*position))
+            if not self.estimation_lines.points:
+                self.estimation_lines.points.append(get_point(*position))
             else:
-                self.lines2.points.append(get_point(*position))
-                self.lines2.points.append(get_point(*position))
+                self.estimation_lines.points.append(get_point(*position))
+                self.estimation_lines.points.append(get_point(*position))
 
     ###########################################################################
     def set_currently_seen(self):
@@ -120,7 +78,7 @@ class Publisher(Node):
             if position_index != self.current_position_index:
                 break
 
-            self.points.colors[point_index] = get_color(0.0, 0.0, 1.0)
+            self.landmarks_points.colors[point_index] = get_color(0.0, 0.0, 1.0)
 
             self.seen_index += 1
 
@@ -166,7 +124,12 @@ def main(args=None):
 
     # Run
     rclpy.init(args=args)
-    publisher = Publisher(time, points_data, positions_data, seen_data, estimate_data)
+    publisher = Publisher(
+            time,
+            points_data,
+            positions_data,
+            seen_data,
+            estimate_data)
 
     rclpy.spin(publisher)
 

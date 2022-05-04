@@ -37,7 +37,3 @@ Rviz2 visulizer from input file
  - `. scripts/clean.sh` clean build files
  - `. scripts/run.sh` run visualization
 
--------------------------------------------------------------------------------
-
-## TODO
- - Split `publisher.py` into multiple files.
