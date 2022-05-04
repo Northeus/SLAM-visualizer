@@ -93,7 +93,7 @@ class Publisher(Node):
 
     ###########################################################################
     def set_current_position(self):
-        position = self.positions_data[self.current_position_index]
+        position = self.positions_data[self.current_position_index][:3]
 
         # Insert groundtruth
         if not self.lines.points:
@@ -104,7 +104,7 @@ class Publisher(Node):
 
         # Insert estimation
         if self.current_position_index < len(self.estimate_data):
-            position = self.estimate_data[self.current_position_index]
+            position = self.estimate_data[self.current_position_index][:3]
 
             if not self.lines2.points:
                 self.lines2.points.append(get_point(*position))
