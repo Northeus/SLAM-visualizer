@@ -39,7 +39,7 @@ def get_color(red, green, blue, alpha=1.0):
 
 ###############################################################################
 def get_points(points_data, marker_id):
-    points_marker = get_marker(Marker.POINTS, marker_id, [0.1, 0.1, 0.1])
+    points_marker = get_marker(Marker.POINTS, marker_id, [0.2, 0.2, 0.2])
 
     for x, y, z in points_data:
         points_marker.points.append(get_point(x, y, z))

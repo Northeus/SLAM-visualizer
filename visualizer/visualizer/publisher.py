@@ -78,7 +78,7 @@ class Publisher(Node):
             if position_index != self.current_position_index:
                 break
 
-            self.landmarks_points.colors[point_index] = get_color(0.0, 0.0, 1.0)
+            self.landmarks_points.colors[point_index] = get_color(0.0, 0.6, 1.0)
 
             self.seen_index += 1
 
