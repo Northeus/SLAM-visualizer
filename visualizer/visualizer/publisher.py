@@ -47,7 +47,7 @@ class Publisher(Node):
     ###########################################################################
     def clear_seen(self):
         for color in self.landmarks_points.colors:
-            color.r, color.g, color.b = 1.0, 1.0, 1.0
+            color.r, color.g, color.b = 0.8, 0.8, 0.8
 
     ###########################################################################
     def set_current_position(self):

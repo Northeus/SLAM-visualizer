@@ -50,5 +50,7 @@ def get_points(points_data, marker_id):
 
 ###############################################################################
 def get_lines(marker_id):
-    return get_marker(Marker.LINE_STRIP, marker_id, [0.05, 0.0, 0.0])
+    lines_marker = get_marker(Marker.LINE_STRIP, marker_id, [0.05, 0.0, 0.0])
+    lines_marker.color.r, lines_marker.color.g, lines_marker.color.b = [0.5] * 3
 
+    return lines_marker
